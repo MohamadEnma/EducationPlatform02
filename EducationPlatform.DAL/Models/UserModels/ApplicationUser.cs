@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using EducationPlatform.BLL.Interfaces;
+using EducationPlatform.BLL.IServices;
 using System;
 using System.Collections.Generic;
 using System.Linq;

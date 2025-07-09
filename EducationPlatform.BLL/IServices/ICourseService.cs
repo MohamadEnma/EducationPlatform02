@@ -1,10 +1,11 @@
-﻿using System;
+﻿using EducationPlatform.BLL.DTOs;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EducationPlatform.BLL.Services
+namespace EducationPlatform.BLL.IServices
 {
     public interface ICourseService
     {

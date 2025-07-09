@@ -41,5 +41,44 @@ namespace EducationPlatform.DAL.Repositories
                     .Include(c => c.Category)
                     .FirstOrDefaultAsync(c => c.CourseId == courseId && !c.IsDeleted);
             }
+
+        public async Task<Course?> GetCourseByIdAsync(int id)
+        {
+            return await _dbSet
+                .Include(c => c.Instructor)
+                .Include(c => c.Category)
+                .FirstOrDefaultAsync(c => c.CourseId == id && !c.IsDeleted);
         }
+
+        public async Task<IEnumerable<Course>> GetAllCoursesAsync()
+        {
+            return await _dbSet
+                .Where(c => !c.IsDeleted)
+                .Include(c => c.Instructor)
+                .Include(c => c.Category)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Course>> FindCoursesAsync(Func<Course, bool> predicate)
+        {
+            throw new NotImplementedException();
+
+        }
+
+        public Task AddCourseAsync(Course course)
+        {
+            throw new NotImplementedException();
+
+        }
+
+        public void UpdateCourse(Course course)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void DeleteCourse(Course course)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }

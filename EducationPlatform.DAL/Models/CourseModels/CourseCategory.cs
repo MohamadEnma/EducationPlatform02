@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using EducationPlatform.BLL.Interfaces;
+using EducationPlatform.BLL.IServices;
 
 
 
