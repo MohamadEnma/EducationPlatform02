@@ -1,10 +1,10 @@
 
 using EducationPlatform.BLL.IServices;
+using EducationPlatform.BLL.Services;
 using EducationPlatform.DAL.Data;
 using EducationPlatform.DAL.IRepositories;
 using EducationPlatform.DAL.Repositories;
 using Microsoft.AspNetCore.Cors.Infrastructure;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using AutoMapper;
@@ -18,33 +18,24 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<EducationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// DAL Services Registration (Note: WEB project doesn't directly reference these, but they're registered for BLL)
+// DAL Services Registration
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IStudentRepository, StudentRepository>();
 builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 
-// BLL Services Registration (These are what WEB controllers will use)
+// BLL Services Registration
 builder.Services.AddScoped<IStudentService, StudentService>();
 builder.Services.AddScoped<ICourseService, CourseService>();
 
-
-//  AutoMapper 
+// AutoMapper configuration
 builder.Services.AddAutoMapper(cfg =>
 {
     cfg.AddMaps(typeof(Program).Assembly);
 });
 
-
 builder.Services.AddLogging();
-
-// Add memory cache for performance
 builder.Services.AddMemoryCache();
-
-// Add model state validation
-builder.Services.Configure<ApiBehaviorOptions>(options =>
-{
-    options.SuppressModelStateInvalidFilter = false;
-});
 
 var app = builder.Build();
 
@@ -57,9 +48,7 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
-
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -67,11 +56,19 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-// Ensure database is created (for development)
+// Ensure database is created
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<EducationDbContext>();
-    context.Database.EnsureCreated();
+    try
+    {
+        context.Database.EnsureCreated();
+    }
+    catch (Exception ex)
+    {
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred creating the database.");
+    }
 }
 
 app.Run();

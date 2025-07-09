@@ -52,7 +52,12 @@ namespace EducationPlatform.DAL.Models.UserModels
 
         // Navigation Properties
         public virtual ICollection<Course> Courses { get; set; }
-  
+
+        // Soft Delete
+        public bool IsDeleted { get; set; }
+        public DateTime? DeletedAt { get; set; }
+        public string DeletedBy { get; set; }
+
 
         // Helper Properties for Logging
         [NotMapped]
