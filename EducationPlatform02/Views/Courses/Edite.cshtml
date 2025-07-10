@@ -1,0 +1,305 @@
+﻿@model CourseFormViewModel
+@{
+    ViewData["Title"] = "Edit Course";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<div class="row">
+    <div class="col-md-8">
+        <form asp-action="Edit" method="post" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input asp-for="CourseId" type="hidden" />
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Basic Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="form-group mb-3">
+                        <label asp-for="Title" class="form-label"></label>
+                        <input asp-for="Title" class="form-control" />
+                        <span asp-validation-for="Title" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="Description" class="form-label"></label>
+                        <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group mb-3">
+                                <label asp-for="Status" class="form-label"></label>
+                                <select asp-for="Status" asp-items="Model.StatusList" class="form-control">
+                                </select>
+                                <span asp-validation-for="Status" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group mb-3">
+                                <label asp-for="Difficulty" class="form-label"></label>
+                                <select asp-for="Difficulty" asp-items="Model.DifficultyList" class="form-control">
+                                </select>
+                                <span asp-validation-for="Difficulty" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group mb-3">
+                                <label asp-for="CategoryId" class="form-label"></label>
+                                <select asp-for="CategoryId" asp-items="Model.CategoryList" class="form-control">
+                                    <option value="">Select Category</option>
+                                </select>
+                                <span asp-validation-for="CategoryId" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-check mb-3">
+                        <input asp-for="IsPublished" class="form-check-input" type="checkbox" />
+                        <label asp-for="IsPublished" class="form-check-label"></label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="mb-0">Course Details</h5>
+                </div>
+                <div class="card-body">
+                    <div class="form-group mb-3">
+                        <label asp-for="LearningObjectives" class="form-label"></label>
+                        <textarea asp-for="LearningObjectives" class="form-control" rows="4"></textarea>
+                        <span asp-validation-for="LearningObjectives" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="Requirements" class="form-label"></label>
+                        <textarea asp-for="Requirements" class="form-control" rows="4"></textarea>
+                        <span asp-validation-for="Requirements" class="text-danger"></span>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label asp-for="EstimatedDuration" class="form-label"></label>
+                                <div class="input-group">
+                                    <input asp-for="EstimatedDuration" class="form-control" type="number" min="1" />
+                                    <span class="input-group-text">minutes</span>
+                                </div>
+                                <span asp-validation-for="EstimatedDuration" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group mb-3">
+                                <label asp-for="StartDate" class="form-label"></label>
+                                <input asp-for="StartDate" class="form-control" type="date" />
+                                <span asp-validation-for="StartDate" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group mb-3">
+                                <label asp-for="EndDate" class="form-label"></label>
+                                <input asp-for="EndDate" class="form-control" type="date" />
+                                <span asp-validation-for="EndDate" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="mb-0">Pricing</h5>
+                </div>
+                <div class="card-body">
+                    <div class="form-check mb-3">
+                        <input asp-for="IsFree" class="form-check-input" type="checkbox" />
+                        <label asp-for="IsFree" class="form-check-label"></label>
+                    </div>
+
+                    <div class="form-group mb-3" id="priceGroup">
+                        <label asp-for="Price" class="form-label"></label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input asp-for="Price" class="form-control" type="number" min="0" step="0.01" />
+                        </div>
+                        <span asp-validation-for="Price" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="mb-0">Media</h5>
+                </div>
+                <div class="card-body">
+                    @if (!string.IsNullOrEmpty(Model.ThumbnailUrl))
+                    {
+                        <div class="mb-3">
+                            <label class="form-label">Current Thumbnail</label>
+                            <div>
+                                <img src="@Model.ThumbnailUrl" alt="Current thumbnail" class="img-thumbnail" style="max-width: 200px;">
+                            </div>
+                        </div>
+                    }
+
+                    <div class="form-group mb-3">
+                        <label asp-for="ThumbnailFile" class="form-label"></label>
+                        <input asp-for="ThumbnailFile" class="form-control" type="file" accept="image/*" />
+                        <small class="form-text text-muted">Upload a new thumbnail image (optional).</small>
+                        <span asp-validation-for="ThumbnailFile" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="ThumbnailUrl" class="form-label"></label>
+                        <input asp-for="ThumbnailUrl" class="form-control" placeholder="Or enter a thumbnail URL" />
+                        <span asp-validation-for="ThumbnailUrl" class="text-danger"></span>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(Model.PreviewVideoUrl))
+                    {
+                        <div class="mb-3">
+                            <label class="form-label">Current Preview Video</label>
+                            <div>
+                                <video controls style="max-width: 300px;">
+                                    <source src="@Model.PreviewVideoUrl" type="video/mp4">
+                                    Your browser does not support the video tag.
+                                </video>
+                            </div>
+                        </div>
+                    }
+
+                    <div class="form-group mb-3">
+                        <label asp-for="PreviewVideoFile" class="form-label"></label>
+                        <input asp-for="PreviewVideoFile" class="form-control" type="file" accept="video/*" />
+                        <small class="form-text text-muted">Upload a new preview video (optional).</small>
+                        <span asp-validation-for="PreviewVideoFile" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="PreviewVideoUrl" class="form-label"></label>
+                        <input asp-for="PreviewVideoUrl" class="form-control" placeholder="Or enter a preview video URL" />
+                        <span asp-validation-for="PreviewVideoUrl" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group mt-4">
+                <button type="submit" class="btn btn-primary me-2">
+                    <i class="fas fa-save"></i> Update Course
+                </button>
+                <a asp-action="Details" asp-route-id="@Model.CourseId" class="btn btn-secondary me-2">
+                    <i class="fas fa-eye"></i> View Course
+                </a>
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to List
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Course Information</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li class="mb-2"><strong>Created:</strong> @Model.CreatedAt.ToString("MMM dd, yyyy")</li>
+                    <li class="mb-2"><strong>Last Modified:</strong> @Model.LastModifiedAt.ToString("MMM dd, yyyy")</li>
+                    @if (Model.PublishedAt.HasValue)
+                    {
+                        <li class="mb-2"><strong>Published:</strong> @Model.PublishedAt.Value.ToString("MMM dd, yyyy")</li>
+                    }
+                    <li class="mb-2">
+                        <strong>Status:</strong>
+                        <span class="badge @Model.StatusBadgeClass">@Model.Status</span>
+                    </li>
+                    <li class="mb-2">
+                        <strong>Difficulty:</strong>
+                        <span class="badge @Model.DifficultyBadgeClass">@Model.Difficulty</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0">Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    @if (Model.IsPublished)
+                    {
+                        <button type="button" class="btn btn-warning" onclick="togglePublishStatus(@Model.CourseId, false)">
+                            <i class="fas fa-eye-slash"></i> Unpublish
+                        </button>
+                    }
+                    else
+                    {
+                        <button type="button" class="btn btn-success" onclick="togglePublishStatus(@Model.CourseId, true)">
+                            <i class="fas fa-eye"></i> Publish
+                        </button>
+                    }
+
+                    <a asp-action="Delete" asp-route-id="@Model.CourseId" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Delete Course
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Toggle price field based on IsFree checkbox
+            $('#IsFree').change(function() {
+                if ($(this).is(':checked')) {
+                    $('#priceGroup').hide();
+                    $('#Price').val('');
+                } else {
+                    $('#priceGroup').show();
+                }
+            });
+
+            // Initialize on page load
+            if ($('#IsFree').is(':checked')) {
+                $('#priceGroup').hide();
+            }
+        });
+
+        function togglePublishStatus(courseId, publish) {
+            var action = publish ? 'Publish' : 'Unpublish';
+            var url = publish ? '@Url.Action("Publish")' : '@Url.Action("Unpublish")';
+
+            if (confirm('Are you sure you want to ' + action.toLowerCase() + ' this course?')) {
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: {
+                        id: courseId,
+                        __RequestVerificationToken: $('[name=__RequestVerificationToken]').val()
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            location.reload();
+                        } else {
+                            alert(response.message);
+                        }
+                    },
+                    error: function() {
+                        alert('An error occurred while updating the course status.');
+                    }
+                });
+            }
+        }
+    </script>
+
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

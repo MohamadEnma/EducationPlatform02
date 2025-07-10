@@ -7,10 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EducationPlatform.BLL\EducationPlatform.BLL.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Folder Include="Configurations\" />
   </ItemGroup>
 

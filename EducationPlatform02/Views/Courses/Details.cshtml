@@ -1,0 +1,169 @@
+﻿@model CourseViewModel
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            @if (!string.IsNullOrEmpty(Model.ThumbnailUrl))
+            {
+                <img src="@Model.ThumbnailUrl" class="card-img-top" alt="@Model.Title" style="height: 300px; object-fit: cover;">
+            }
+
+            <div class="card-body">
+                <h1 class="card-title">@Model.Title</h1>
+
+                <div class="mb-3">
+                    <span class="badge @Model.StatusBadgeClass me-2">@Model.Status</span>
+                    <span class="badge @Model.DifficultyBadgeClass me-2">@Model.Difficulty</span>
+                    @if (Model.IsPublished)
+                    {
+                        <span class="badge badge-success">Published</span>
+                    }
+                    else
+                    {
+                        <span class="badge badge-warning">Draft</span>
+                    }
+                </div>
+
+                <p class="card-text">@Model.Description</p>
+
+                @if (!string.IsNullOrEmpty(Model.LearningObjectives))
+                {
+                    <h5>Learning Objectives</h5>
+                    <p>@Model.LearningObjectives</p>
+                }
+
+                @if (!string.IsNullOrEmpty(Model.Requirements))
+                {
+                    <h5>Requirements</h5>
+                    <p>@Model.Requirements</p>
+                }
+
+                @if (!string.IsNullOrEmpty(Model.PreviewVideoUrl))
+                {
+                    <h5>Preview Video</h5>
+                    <video controls class="w-100 mb-3">
+                        <source src="@Model.PreviewVideoUrl" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Course Information</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li class="mb-2">
+                        <strong>Price:</strong> @Model.FormattedPrice
+                    </li>
+                    <li class="mb-2">
+                        <strong>Duration:</strong> @Model.FormattedDuration
+                    </li>
+                    <li class="mb-2">
+                        <strong>Instructor:</strong> @Model.InstructorName
+                    </li>
+                    @if (!string.IsNullOrEmpty(Model.CategoryName))
+                    {
+                        <li class="mb-2">
+                            <strong>Category:</strong> @Model.CategoryName
+                        </li>
+                    }
+                    <li class="mb-2">
+                        <strong>Created:</strong> @Model.CreatedAt.ToString("MMM dd, yyyy")
+                    </li>
+                    @if (Model.PublishedAt.HasValue)
+                    {
+                        <li class="mb-2">
+                            <strong>Published:</strong> @Model.PublishedAt.Value.ToString("MMM dd, yyyy")
+                        </li>
+                    }
+                    @if (Model.StartDate.HasValue)
+                    {
+                        <li class="mb-2">
+                            <strong>Start Date:</strong> @Model.StartDate.Value.ToString("MMM dd, yyyy")
+                        </li>
+                    }
+                    @if (Model.EndDate.HasValue)
+                    {
+                        <li class="mb-2">
+                            <strong>End Date:</strong> @Model.EndDate.Value.ToString("MMM dd, yyyy")
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="card mt-3">
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a asp-action="Edit" asp-route-id="@Model.CourseId" class="btn btn-primary">
+                        <i class="fas fa-edit"></i> Edit Course
+                    </a>
+
+                    @if (Model.IsPublished)
+                    {
+                        <button type="button" class="btn btn-warning" onclick="togglePublishStatus(@Model.CourseId, false)">
+                            <i class="fas fa-eye-slash"></i> Unpublish
+                        </button>
+                    }
+                    else
+                    {
+                        <button type="button" class="btn btn-success" onclick="togglePublishStatus(@Model.CourseId, true)">
+                            <i class="fas fa-eye"></i> Publish
+                        </button>
+                    }
+
+                    <a asp-action="Delete" asp-route-id="@Model.CourseId" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Delete Course
+                    </a>
+
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to List
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function togglePublishStatus(courseId, publish) {
+            var action = publish ? 'Publish' : 'Unpublish';
+            var url = publish ? '@Url.Action("Publish")' : '@Url.Action("Unpublish")';
+
+            if (confirm('Are you sure you want to ' + action.toLowerCase() + ' this course?')) {
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: {
+                        id: courseId,
+                        __RequestVerificationToken: $('[name=__RequestVerificationToken]').val()
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            location.reload();
+                        } else {
+                            alert(response.message);
+                        }
+                    },
+                    error: function() {
+                        alert('An error occurred while updating the course status.');
+                    }
+                });
+            }
+        }
+    </script>
+
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

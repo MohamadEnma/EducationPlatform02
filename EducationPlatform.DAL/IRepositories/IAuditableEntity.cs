@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EducationPlatform.BLL.IServices
+namespace EducationPlatform.DAL.IRepositories
 {
     public interface IAuditableEntity
     {

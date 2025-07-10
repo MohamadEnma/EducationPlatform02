@@ -1,10 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using EducationPlatform.DAL.Models.CourseModels;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using EducationPlatform.BLL.IServices;
 
 
 
-namespace EducationPlatform.DAL.Models.CourseModels
+
+namespace EducationPlatform.DAL.IRepositories
 {
     public class CourseCategory : IAuditableEntity
     {

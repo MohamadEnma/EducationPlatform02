@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using EducationPlatform.BLL.IServices;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +7,7 @@ using System.Threading.Tasks;
 using EducationPlatform.DAL.Models.CourseModels;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using EducationPlatform.DAL.IRepositories;
 
 namespace EducationPlatform.DAL.Models.UserModels
 {

@@ -1,0 +1,157 @@
+﻿@model IEnumerable<CourseViewModel>
+@{
+    ViewData["Title"] = "Published Courses";
+    Layout = "_Layout";
+}
+
+<div class="mb-4">
+    <h1>@ViewData["Title"]</h1>
+    <p class="lead">Discover our latest courses and start learning today!</p>
+</div>
+
+@if (Model.Any())
+{
+    <div class="row">
+        @foreach (var course in Model)
+        {
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100 course-card">
+                    @if (!string.IsNullOrEmpty(course.ThumbnailUrl))
+                    {
+                        <img src="@course.ThumbnailUrl" class="card-img-top" alt="@course.Title" style="height: 200px; object-fit: cover;">
+                    }
+                    else
+                    {
+                        <div class="card-img-top bg-gradient-primary d-flex align-items-center justify-content-center" style="height: 200px; background: linear-gradient(45deg, #007bff, #0056b3);">
+                            <i class="fas fa-book fa-3x text-white"></i>
+                        </div>
+                    }
+                    
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">@course.Title</h5>
+                        <p class="card-text flex-grow-1">@course.Description</p>
+                        
+                        <div class="mb-2">
+                            <span class="badge @course.DifficultyBadgeClass">@course.Difficulty</span>
+                            @if (!string.IsNullOrEmpty(course.CategoryName))
+                            {
+                                <span class="badge badge-outline-secondary">@course.CategoryName</span>
+                            }
+                        </div>
+                        
+                        <div class="mb-3">
+                            <small class="text-muted">
+                                <i class="fas fa-user"></i> @course.InstructorName<br>
+                                <i class="fas fa-clock"></i> @course.FormattedDuration<br>
+                                <i class="fas fa-calendar"></i> Published @course.PublishedAt?.ToString("MMM dd, yyyy")
+                            </small>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between align-items-center mt-auto">
+                            <div class="price-display">
+                                @if (course.IsFree)
+                                {
+                                    <span class="h5 text-success mb-0">Free</span>
+                                }
+                                else
+                                {
+                                    <span class="h5 text-primary mb-0">@course.FormattedPrice</span>
+                                }
+                            </div>
+                            
+                            <div class="btn-group">
+                                <a asp-action="Details" asp-route-id="@course.CourseId" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-info-circle"></i> Learn More
+                                </a>
+                                @if (!course.IsFree)
+                                {
+                                    <button type="button" class="btn btn-primary btn-sm">
+                                        <i class="fas fa-shopping-cart"></i> Enroll
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button type="button" class="btn btn-success btn-sm">
+                                        <i class="fas fa-play"></i> Start Free
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    
+                    @if (!string.IsNullOrEmpty(course.PreviewVideoUrl))
+                    {
+                        <div class="card-footer">
+                            <button type="button" class="btn btn-outline-secondary btn-sm w-100" data-bs-toggle="modal" data-bs-target="#previewModal@(course.CourseId)">
+                                <i class="fas fa-play"></i> Preview Course
+                            </button>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Course Statistics for Public View -->
+    <div class="row mt-5">
+        <div class="col-md-12">
+            <div class="card bg-light">
+                <div class="card-body text-center">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <h3 class="text-primary">@Model.Count()</h3>
+                            <p class="text-muted">Courses Available</p>
+                        </div>
+                        <div class="col-md-3">
+                            <h3 class="text-success">@Model.Count(c => c.IsFree)</h3>
+                            <p class="text-muted">Free Courses</p>
+                        </div>
+                        <div class="col-md-3">
+                            <h3 class="text-info">@Model.GroupBy(c => c.InstructorName).Count()</h3>
+                            <p class="text-muted">Instructors</p>
+                        </div>
+                        <div class="col-md-3">
+                            <h3 class="text-warning">@Model.GroupBy(c => c.CategoryName).Count()</h3>
+                            <p class="text-muted">Categories</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="text-center py-5">
+        <i class="fas fa-search fa-3x text-muted mb-3"></i>
+        <h3>No published courses available</h3>
+        <p class="text-muted">Check back soon for new courses!</p>
+    </div>
+}
+
+<!-- Preview Video Modals -->
+@foreach (var course in Model.Where(c => !string.IsNullOrEmpty(c.PreviewVideoUrl)))
+{
+    <div class="modal fade" id="previewModal@(course.CourseId)" tabindex="-1" aria-labelledby="previewModalLabel@(course.CourseId)" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="previewModalLabel@(course.CourseId)">Preview: @course.Title</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <video controls class="w-100">
+                        <source src="@course.PreviewVideoUrl" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <a asp-action="Details" asp-route-id="@course.CourseId" class="btn btn-primary">View Course Details</a>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+

@@ -1,4 +1,5 @@
-﻿using EducationPlatform.DAL.Models.UserModels;
+﻿using EducationPlatform.DAL.IRepositories;
+using EducationPlatform.DAL.Models.UserModels;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;

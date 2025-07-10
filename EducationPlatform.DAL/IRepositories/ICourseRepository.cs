@@ -15,5 +15,8 @@ namespace EducationPlatform.DAL.IRepositories
         Task AddCourseAsync(Course course);
         void UpdateCourse(Course course);
         void DeleteCourse(Course course);
+        Task<Course?> GetCourseWithDetailsAsync(int courseId);
+        Task<IEnumerable<Course>> GetCoursesByInstructorAsync(string instructorId);
+        Task<IEnumerable<Course>> GetPublishedCoursesAsync();
     }
 }
