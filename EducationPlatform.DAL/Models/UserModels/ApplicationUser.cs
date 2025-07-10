@@ -32,6 +32,8 @@ namespace EducationPlatform.DAL.Models.UserModels
         [StringLength(255)]
         public string AvatarUrl { get; set; }
 
+        public DateTime DateOfBirth { get; set; }
+
         // User Status
         public bool IsActive { get; set; }
 

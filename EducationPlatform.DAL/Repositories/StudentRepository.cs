@@ -30,7 +30,42 @@ namespace EducationPlatform.DAL.Repositories
             return await _dbSet
                 .FirstOrDefaultAsync(s => s.Id == studentId && !s.IsDeleted);
         }
+        public async Task<IEnumerable<ApplicationUser>> GetAllStudentsAsync()
+        {
+            return await _dbSet
+                .Where(s => !s.IsDeleted)
+                .ToListAsync();
+        }
+        public async Task<ApplicationUser?> GetStudentByIdAsync(string id)
+        {
+            return await _dbSet
+                .FirstOrDefaultAsync(s => s.Id == id && !s.IsDeleted);
+        }
 
-       
+        public async Task<bool> CanStudentEnrollAsync(string studentId, int courseId)
+        {
+            var student = await _dbSet
+                .Include(s => s.Courses)
+                .FirstOrDefaultAsync(s => s.Id == studentId.ToString() && !s.IsDeleted);
+            if (student == null)
+            {
+                return false;
+            }
+            // Check if the student is already enrolled in the course
+            return !student.Courses.Any(c => c.CourseId == courseId);
+        }
+        public async Task<ApplicationUser?> CreateAsync(ApplicationUser student)
+        {
+            if (student == null)
+            {
+                throw new ArgumentNullException(nameof(student));
+            }
+
+            await _dbSet.AddAsync(student);
+            await _context.SaveChangesAsync();
+
+            return student;
+        }
+
     }
 }

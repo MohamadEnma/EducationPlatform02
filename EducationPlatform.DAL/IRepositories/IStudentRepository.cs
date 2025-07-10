@@ -11,5 +11,9 @@ namespace EducationPlatform.DAL.IRepositories
     {
         Task<IEnumerable<ApplicationUser>> GetStudentsByCourseIdAsync(int courseId);
         Task<ApplicationUser?> GetStudentWithCoursesAsync(string studentId);
+        Task<IEnumerable<ApplicationUser>> GetAllStudentsAsync();
+        Task<ApplicationUser?> GetStudentByIdAsync(string id);
+        Task<bool> CanStudentEnrollAsync(string studentId, int courseId);
+        Task<ApplicationUser?> CreateAsync(ApplicationUser student);
     }
 }

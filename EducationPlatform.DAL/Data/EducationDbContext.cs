@@ -1,4 +1,5 @@
-﻿using EducationPlatform.DAL.Models.CourseModels;
+﻿using EducationPlatform.DAL.IRepositories;
+using EducationPlatform.DAL.Models.CourseModels;
 using EducationPlatform.DAL.Models.UserModels;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -17,6 +18,8 @@ namespace EducationPlatform.DAL.Data
 
         public DbSet<ApplicationUser> Students { get; set; }
         public DbSet<Course> Courses { get; set; }
+        public DbSet<Enrollment> Enrollments { get; set; }
+        public DbSet<CourseCategory> Categories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

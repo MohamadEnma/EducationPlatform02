@@ -9,7 +9,7 @@ namespace EducationPlatform.BLL.DTOs
 {
     public class StudentDto
     {
-        public int Id { get; set; }
+        public string Id { get; set; }
 
         [Required(ErrorMessage = "First name is required")]
         [StringLength(100)]

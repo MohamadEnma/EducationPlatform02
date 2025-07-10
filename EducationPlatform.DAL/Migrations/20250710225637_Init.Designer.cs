@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EducationPlatform.DAL.Migrations
 {
     [DbContext(typeof(EducationDbContext))]
-    [Migration("20250709235624_Init")]
+    [Migration("20250710225637_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -114,7 +114,7 @@ namespace EducationPlatform.DAL.Migrations
 
                     b.HasKey("CourseCategoryId");
 
-                    b.ToTable("CourseCategory");
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("EducationPlatform.DAL.Models.CourseModels.Course", b =>
@@ -181,6 +181,9 @@ namespace EducationPlatform.DAL.Migrations
                         .HasMaxLength(4000)
                         .HasColumnType("nvarchar(4000)");
 
+                    b.Property<int>("MaxStudents")
+                        .HasColumnType("int");
+
                     b.Property<string>("ModifiedBy")
                         .IsRequired()
                         .HasMaxLength(256)
@@ -230,6 +233,149 @@ namespace EducationPlatform.DAL.Migrations
                     b.ToTable("Courses");
                 });
 
+            modelBuilder.Entity("EducationPlatform.DAL.Models.CourseModels.Enrollment", b =>
+                {
+                    b.Property<int>("EnrollmentId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("EnrollmentId"));
+
+                    b.Property<string>("AdminComments")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<bool>("CertificateIssued")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("CertificateIssuedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CertificateNumber")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("CertificateUrl")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("CompletedLessons")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("CompletionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("CompletionPercentage")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("CourseId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<DateTime>("CreatedUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("EnrollmentDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("ExpiryDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal?>("FinalGrade")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("GradeComments")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("HasPassed")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastAccessedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("LastModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<DateTime?>("ModifiedUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Notes")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<bool>("NotificationsEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<decimal?>("PaidAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("PaymentDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("PaymentStatus")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("PreferredLanguage")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("StudentId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("TotalLessons")
+                        .HasColumnType("int");
+
+                    b.Property<TimeSpan?>("TotalTimeSpent")
+                        .HasColumnType("time");
+
+                    b.Property<string>("TransactionId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("EnrollmentId");
+
+                    b.HasIndex("CourseId");
+
+                    b.HasIndex("StudentId");
+
+                    b.ToTable("Enrollments");
+                });
+
             modelBuilder.Entity("EducationPlatform.DAL.Models.UserModels.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
@@ -256,6 +402,9 @@ namespace EducationPlatform.DAL.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DateOfBirth")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("DeletedAt")
@@ -364,9 +513,33 @@ namespace EducationPlatform.DAL.Migrations
                     b.Navigation("Instructor");
                 });
 
+            modelBuilder.Entity("EducationPlatform.DAL.Models.CourseModels.Enrollment", b =>
+                {
+                    b.HasOne("EducationPlatform.DAL.Models.CourseModels.Course", "Course")
+                        .WithMany("Enrollments")
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("EducationPlatform.DAL.Models.UserModels.ApplicationUser", "Student")
+                        .WithMany()
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Course");
+
+                    b.Navigation("Student");
+                });
+
             modelBuilder.Entity("EducationPlatform.DAL.IRepositories.CourseCategory", b =>
                 {
                     b.Navigation("Courses");
+                });
+
+            modelBuilder.Entity("EducationPlatform.DAL.Models.CourseModels.Course", b =>
+                {
+                    b.Navigation("Enrollments");
                 });
 
             modelBuilder.Entity("EducationPlatform.DAL.Models.UserModels.ApplicationUser", b =>

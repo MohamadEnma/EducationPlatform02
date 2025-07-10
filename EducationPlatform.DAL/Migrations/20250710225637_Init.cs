@@ -12,7 +12,7 @@ namespace EducationPlatform.DAL.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "CourseCategory",
+                name: "Categories",
                 columns: table => new
                 {
                     CourseCategoryId = table.Column<int>(type: "int", nullable: false)
@@ -39,7 +39,7 @@ namespace EducationPlatform.DAL.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CourseCategory", x => x.CourseCategoryId);
+                    table.PrimaryKey("PK_Categories", x => x.CourseCategoryId);
                 });
 
             migrationBuilder.CreateTable(
@@ -52,6 +52,7 @@ namespace EducationPlatform.DAL.Migrations
                     DisplayName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Bio = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
                     AvatarUrl = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    DateOfBirth = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
                     LastLoginUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
                     TimeZone = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
@@ -99,6 +100,7 @@ namespace EducationPlatform.DAL.Migrations
                     PublishedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    MaxStudents = table.Column<int>(type: "int", nullable: false),
                     EstimatedDuration = table.Column<int>(type: "int", nullable: true),
                     Price = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
                     IsFree = table.Column<bool>(type: "bit", nullable: false),
@@ -120,13 +122,72 @@ namespace EducationPlatform.DAL.Migrations
                 {
                     table.PrimaryKey("PK_Courses", x => x.CourseId);
                     table.ForeignKey(
-                        name: "FK_Courses_CourseCategory_CategoryId",
+                        name: "FK_Courses_Categories_CategoryId",
                         column: x => x.CategoryId,
-                        principalTable: "CourseCategory",
+                        principalTable: "Categories",
                         principalColumn: "CourseCategoryId");
                     table.ForeignKey(
                         name: "FK_Courses_Students_InstructorId",
                         column: x => x.InstructorId,
+                        principalTable: "Students",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Enrollments",
+                columns: table => new
+                {
+                    EnrollmentId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CourseId = table.Column<int>(type: "int", nullable: false),
+                    StudentId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    EnrollmentDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CompletionDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ExpiryDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    LastAccessedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    CompletionPercentage = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    CompletedLessons = table.Column<int>(type: "int", nullable: false),
+                    TotalLessons = table.Column<int>(type: "int", nullable: false),
+                    TotalTimeSpent = table.Column<TimeSpan>(type: "time", nullable: true),
+                    FinalGrade = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    HasPassed = table.Column<bool>(type: "bit", nullable: false),
+                    GradeComments = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PaidAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    PaymentStatus = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    TransactionId = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    PaymentDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    CertificateIssued = table.Column<bool>(type: "bit", nullable: false),
+                    CertificateIssuedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    CertificateNumber = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    CertificateUrl = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    NotificationsEnabled = table.Column<bool>(type: "bit", nullable: false),
+                    PreferredLanguage = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Notes = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
+                    AdminComments = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
+                    CreatedUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
+                    ModifiedUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ModifiedBy = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
+                    LastModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeletedBy = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Enrollments", x => x.EnrollmentId);
+                    table.ForeignKey(
+                        name: "FK_Enrollments_Courses_CourseId",
+                        column: x => x.CourseId,
+                        principalTable: "Courses",
+                        principalColumn: "CourseId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Enrollments_Students_StudentId",
+                        column: x => x.StudentId,
                         principalTable: "Students",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -141,16 +202,29 @@ namespace EducationPlatform.DAL.Migrations
                 name: "IX_Courses_InstructorId",
                 table: "Courses",
                 column: "InstructorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Enrollments_CourseId",
+                table: "Enrollments",
+                column: "CourseId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Enrollments_StudentId",
+                table: "Enrollments",
+                column: "StudentId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "Enrollments");
+
+            migrationBuilder.DropTable(
                 name: "Courses");
 
             migrationBuilder.DropTable(
-                name: "CourseCategory");
+                name: "Categories");
 
             migrationBuilder.DropTable(
                 name: "Students");

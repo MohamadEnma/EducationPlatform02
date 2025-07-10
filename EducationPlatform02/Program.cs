@@ -45,6 +45,10 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 // Add DAL repositories
 builder.Services.AddScoped<IStudentRepository, StudentRepository>();
 builder.Services.AddScoped<ICourseRepository, CourseRepository>();
+builder.Services.AddScoped<IEnrollmentRepository, EnrollmentRepository>();
+
+builder.Services.AddScoped<IStudentService, StudentService>();
+builder.Services.AddScoped<IEnrollmentService, EnrollmentService>();
 
 // generic repository 
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
