@@ -515,13 +515,21 @@ namespace EducationPlatform.WEB.Controllers
                 });
 
             // Category dropdown
-            var categories = await _unitOfWork.Categories.GetAllActiveAsync();
-            viewModel.CategoryList = categories.Select(c => new SelectListItem
+            try
             {
-                Value = c.CourseCategoryId.ToString(),
-                Text = c.Name,
-                Selected = c.CourseCategoryId == viewModel.CategoryId
-            });
+                var categories = await _unitOfWork.Categories.GetAllActiveAsync();
+                viewModel.CategoryList = categories.Select(c => new SelectListItem
+                {
+                    Value = c.CourseCategoryId.ToString(),
+                    Text = c.Name,
+                    Selected = c.CourseCategoryId == viewModel.CategoryId
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to load categories for dropdown");
+                viewModel.CategoryList = new List<SelectListItem>();
+            }
 
             // Instructor dropdown (for admin users)
             if (User.IsInRole("Admin"))
