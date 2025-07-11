@@ -19,10 +19,12 @@ namespace EducationPlatform.DAL.Repositories
             _context = context;
             Students = new StudentRepository(_context);
             Courses = new CourseRepository(_context);
+            Categories = new CourseCategoryRepository(_context);
         }
 
         public IStudentRepository Students { get; private set; }
         public ICourseRepository Courses { get; private set; }
+        public ICourseCategoryRepository Categories { get; private set; }
 
         public async Task<int> SaveChangesAsync()
         {

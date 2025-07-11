@@ -10,6 +10,7 @@ namespace EducationPlatform.DAL.IRepositories
     {
         IStudentRepository Students { get; }
         ICourseRepository Courses { get; }
+        ICourseCategoryRepository Categories { get; }
         Task<int> SaveChangesAsync();
         Task BeginTransactionAsync();
         Task CommitTransactionAsync();

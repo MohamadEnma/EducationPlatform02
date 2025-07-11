@@ -112,5 +112,29 @@ namespace EducationPlatform.DAL.Repositories
 
             _dbSet.Update(course);
         }
+
+        // New methods for optimized filtering and pagination
+        public Task<IQueryable<Course>> GetCoursesQueryableAsync()
+        {
+            IQueryable<Course> query = _dbSet
+                .Where(c => !c.IsDeleted)
+                .Include(c => c.Instructor)
+                .Include(c => c.Category);
+            
+            return Task.FromResult(query);
+        }
+
+        public async Task<int> GetCoursesCountAsync(IQueryable<Course> query)
+        {
+            return await query.CountAsync();
+        }
+
+        public async Task<IEnumerable<Course>> GetPagedCoursesAsync(IQueryable<Course> query, int pageNumber, int pageSize)
+        {
+            return await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+        }
     }
 }

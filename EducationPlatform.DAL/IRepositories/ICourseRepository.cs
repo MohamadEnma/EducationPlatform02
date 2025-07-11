@@ -18,5 +18,10 @@ namespace EducationPlatform.DAL.IRepositories
         Task<Course?> GetCourseWithDetailsAsync(int courseId);
         Task<IEnumerable<Course>> GetCoursesByInstructorAsync(string instructorId);
         Task<IEnumerable<Course>> GetPublishedCoursesAsync();
+        
+        // New methods for optimized filtering and pagination
+        Task<IQueryable<Course>> GetCoursesQueryableAsync();
+        Task<int> GetCoursesCountAsync(IQueryable<Course> query);
+        Task<IEnumerable<Course>> GetPagedCoursesAsync(IQueryable<Course> query, int pageNumber, int pageSize);
     }
 }

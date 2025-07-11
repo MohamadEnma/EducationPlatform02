@@ -8,7 +8,7 @@ using System.Security.Claims;
 
 namespace EducationPlatform.WEB.Controllers
 {
-
+    [Authorize]
     public class CoursesController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -29,51 +29,54 @@ namespace EducationPlatform.WEB.Controllers
         {
             try
             {
-                var courses = await _unitOfWork.Courses.GetAllCoursesAsync();
-                var courseViewModels = courses.Select(c => new CourseViewModel(c)).AsQueryable();
+                // Use database-level filtering instead of in-memory filtering
+                var coursesQuery = await _unitOfWork.Courses.GetCoursesQueryableAsync();
 
-                // Apply filters
+                // Apply filters at database level
                 if (!string.IsNullOrEmpty(searchTerm))
                 {
-                    courseViewModels = courseViewModels.Where(c =>
-                        c.Title.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-                        c.Description.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+                    coursesQuery = coursesQuery.Where(c =>
+                        c.Title.Contains(searchTerm) ||
+                        c.Description.Contains(searchTerm));
                 }
 
                 if (filterStatus.HasValue)
                 {
-                    courseViewModels = courseViewModels.Where(c => c.Status == filterStatus.Value);
+                    coursesQuery = coursesQuery.Where(c => c.Status == filterStatus.Value);
                 }
 
                 if (filterDifficulty.HasValue)
                 {
-                    courseViewModels = courseViewModels.Where(c => c.Difficulty == filterDifficulty.Value);
+                    coursesQuery = coursesQuery.Where(c => c.Difficulty == filterDifficulty.Value);
                 }
 
                 if (filterCategoryId.HasValue)
                 {
-                    courseViewModels = courseViewModels.Where(c => c.CategoryId == filterCategoryId.Value);
+                    coursesQuery = coursesQuery.Where(c => c.CategoryId == filterCategoryId.Value);
                 }
 
-                // Apply sorting
-                courseViewModels = sortBy.ToLower() switch
+                // Apply sorting at database level
+                coursesQuery = sortBy.ToLower() switch
                 {
-                    "title" => sortDirection == "asc" ? courseViewModels.OrderBy(c => c.Title) : courseViewModels.OrderByDescending(c => c.Title),
-                    "createdat" => sortDirection == "asc" ? courseViewModels.OrderBy(c => c.CreatedAt) : courseViewModels.OrderByDescending(c => c.CreatedAt),
-                    "status" => sortDirection == "asc" ? courseViewModels.OrderBy(c => c.Status) : courseViewModels.OrderByDescending(c => c.Status),
-                    "difficulty" => sortDirection == "asc" ? courseViewModels.OrderBy(c => c.Difficulty) : courseViewModels.OrderByDescending(c => c.Difficulty),
-                    _ => courseViewModels.OrderByDescending(c => c.CreatedAt)
+                    "title" => sortDirection == "asc" ? coursesQuery.OrderBy(c => c.Title) : coursesQuery.OrderByDescending(c => c.Title),
+                    "createdat" => sortDirection == "asc" ? coursesQuery.OrderBy(c => c.CreatedAt) : coursesQuery.OrderByDescending(c => c.CreatedAt),
+                    "status" => sortDirection == "asc" ? coursesQuery.OrderBy(c => c.Status) : coursesQuery.OrderByDescending(c => c.Status),
+                    "difficulty" => sortDirection == "asc" ? coursesQuery.OrderBy(c => c.Difficulty) : coursesQuery.OrderByDescending(c => c.Difficulty),
+                    _ => coursesQuery.OrderByDescending(c => c.CreatedAt)
                 };
 
-                var totalCount = courseViewModels.Count();
-                var paginatedCourses = courseViewModels
-                    .Skip((pageNumber - 1) * pageSize)
-                    .Take(pageSize)
-                    .ToList();
+                // Get total count before pagination
+                var totalCount = await _unitOfWork.Courses.GetCoursesCountAsync(coursesQuery);
+
+                // Apply pagination at database level
+                var courses = await _unitOfWork.Courses.GetPagedCoursesAsync(coursesQuery, pageNumber, pageSize);
+
+                // Convert to view models
+                var courseViewModels = courses.Select(c => new CourseViewModel(c)).ToList();
 
                 var viewModel = new CourseListViewModel
                 {
-                    Courses = paginatedCourses,
+                    Courses = courseViewModels,
                     TotalCount = totalCount,
                     PageNumber = pageNumber,
                     PageSize = pageSize,
@@ -119,6 +122,7 @@ namespace EducationPlatform.WEB.Controllers
         }
 
         // GET: Course/Create
+        [Authorize(Roles = "Admin,Instructor")]
         public async Task<IActionResult> Create()
         {
             var viewModel = new CourseFormViewModel();
@@ -129,21 +133,31 @@ namespace EducationPlatform.WEB.Controllers
         // POST: Course/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin,Instructor")]
         public async Task<IActionResult> Create(CourseFormViewModel viewModel)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
-                    // Handle file uploads
-                    if (viewModel.ThumbnailFile != null)
+                    try
                     {
-                        viewModel.ThumbnailUrl = await SaveFileAsync(viewModel.ThumbnailFile, "thumbnails");
-                    }
+                        // Handle file uploads
+                        if (viewModel.ThumbnailFile != null)
+                        {
+                            viewModel.ThumbnailUrl = await SaveFileAsync(viewModel.ThumbnailFile, "thumbnails");
+                        }
 
-                    if (viewModel.PreviewVideoFile != null)
+                        if (viewModel.PreviewVideoFile != null)
+                        {
+                            viewModel.PreviewVideoUrl = await SaveFileAsync(viewModel.PreviewVideoFile, "videos");
+                        }
+                    }
+                    catch (InvalidOperationException ex)
                     {
-                        viewModel.PreviewVideoUrl = await SaveFileAsync(viewModel.PreviewVideoFile, "videos");
+                        ModelState.AddModelError("", ex.Message);
+                        await PopulateDropdownLists(viewModel);
+                        return View(viewModel);
                     }
 
                     // Set audit fields
@@ -235,23 +249,32 @@ namespace EducationPlatform.WEB.Controllers
                         return RedirectToAction(nameof(Details), new { id });
                     }
 
-                    // Handle file uploads
-                    if (viewModel.ThumbnailFile != null)
+                    try
                     {
-                        viewModel.ThumbnailUrl = await SaveFileAsync(viewModel.ThumbnailFile, "thumbnails");
-                    }
-                    else
-                    {
-                        viewModel.ThumbnailUrl = existingCourse.ThumbnailUrl;
-                    }
+                        // Handle file uploads
+                        if (viewModel.ThumbnailFile != null)
+                        {
+                            viewModel.ThumbnailUrl = await SaveFileAsync(viewModel.ThumbnailFile, "thumbnails");
+                        }
+                        else
+                        {
+                            viewModel.ThumbnailUrl = existingCourse.ThumbnailUrl;
+                        }
 
-                    if (viewModel.PreviewVideoFile != null)
-                    {
-                        viewModel.PreviewVideoUrl = await SaveFileAsync(viewModel.PreviewVideoFile, "videos");
+                        if (viewModel.PreviewVideoFile != null)
+                        {
+                            viewModel.PreviewVideoUrl = await SaveFileAsync(viewModel.PreviewVideoFile, "videos");
+                        }
+                        else
+                        {
+                            viewModel.PreviewVideoUrl = existingCourse.PreviewVideoUrl;
+                        }
                     }
-                    else
+                    catch (InvalidOperationException ex)
                     {
-                        viewModel.PreviewVideoUrl = existingCourse.PreviewVideoUrl;
+                        ModelState.AddModelError("", ex.Message);
+                        await PopulateDropdownLists(viewModel);
+                        return View(viewModel);
                     }
 
                     // Update audit fields
@@ -471,7 +494,7 @@ namespace EducationPlatform.WEB.Controllers
         }
 
         // Helper Methods
-        private async Task PopulateDropdownLists(CourseViewModel viewModel)
+        private async Task PopulateDropdownLists(CourseFormViewModel viewModel)
         {
             // Status dropdown
             viewModel.StatusList = Enum.GetValues<CourseStatus>()
@@ -491,6 +514,15 @@ namespace EducationPlatform.WEB.Controllers
                     Selected = d == viewModel.Difficulty
                 });
 
+            // Category dropdown
+            var categories = await _unitOfWork.Categories.GetAllActiveAsync();
+            viewModel.CategoryList = categories.Select(c => new SelectListItem
+            {
+                Value = c.CourseCategoryId.ToString(),
+                Text = c.Name,
+                Selected = c.CourseCategoryId == viewModel.CategoryId
+            });
+
             // Instructor dropdown (for admin users)
             if (User.IsInRole("Admin"))
             {
@@ -509,10 +541,34 @@ namespace EducationPlatform.WEB.Controllers
             if (file == null || file.Length == 0)
                 return string.Empty;
 
+            // File validation
+            var allowedImageExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
+            var allowedVideoExtensions = new[] { ".mp4", ".avi", ".mov", ".wmv", ".webm" };
+            
+            var fileExtension = Path.GetExtension(file.FileName).ToLowerInvariant();
+            
+            if (folder == "thumbnails" && !allowedImageExtensions.Contains(fileExtension))
+            {
+                throw new InvalidOperationException($"Invalid file type for thumbnail. Allowed types: {string.Join(", ", allowedImageExtensions)}");
+            }
+            
+            if (folder == "videos" && !allowedVideoExtensions.Contains(fileExtension))
+            {
+                throw new InvalidOperationException($"Invalid file type for video. Allowed types: {string.Join(", ", allowedVideoExtensions)}");
+            }
+
+            // File size validation (10MB for images, 100MB for videos)
+            var maxSize = folder == "thumbnails" ? 10 * 1024 * 1024 : 100 * 1024 * 1024;
+            if (file.Length > maxSize)
+            {
+                var maxSizeMB = maxSize / (1024 * 1024);
+                throw new InvalidOperationException($"File size exceeds the maximum allowed size of {maxSizeMB}MB.");
+            }
+
             var uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", folder);
             Directory.CreateDirectory(uploadsFolder);
 
-            var uniqueFileName = Guid.NewGuid().ToString() + "_" + file.FileName;
+            var uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(file.FileName);
             var filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
             using (var fileStream = new FileStream(filePath, FileMode.Create))

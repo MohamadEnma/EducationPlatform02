@@ -263,7 +263,7 @@ namespace EducationPlatform.WEB.ViewModels
         public int TotalCount { get; set; }
         public int PageNumber { get; set; } = 1;
         public int PageSize { get; set; } = 10;
-        public string SearchTerm { get; set; }
+        public string? SearchTerm { get; set; }
         public CourseStatus? FilterStatus { get; set; }
         public CourseDifficulty? FilterDifficulty { get; set; }
         public int? FilterCategoryId { get; set; }
@@ -289,10 +289,10 @@ namespace EducationPlatform.WEB.ViewModels
         public bool IsEditMode => CourseId > 0;
 
         [Display(Name = "Upload Thumbnail")]
-        public IFormFile ThumbnailFile { get; set; }
+        public IFormFile? ThumbnailFile { get; set; }
 
         [Display(Name = "Upload Preview Video")]
-        public IFormFile PreviewVideoFile { get; set; }
+        public IFormFile? PreviewVideoFile { get; set; }
     }
    
 }

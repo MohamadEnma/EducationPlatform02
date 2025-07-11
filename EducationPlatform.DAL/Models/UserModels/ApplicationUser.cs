@@ -14,23 +14,21 @@ namespace EducationPlatform.DAL.Models.UserModels
     public class ApplicationUser : IdentityUser, IAuditableEntity
     {
 
-        [Required]
         [StringLength(50)]
-        public string FirstName { get; set; }
+        public string? FirstName { get; set; }
 
-        [Required]
         [StringLength(50)]
-        public string LastName { get; set; }
+        public string? LastName { get; set; }
 
         [StringLength(100)]
-        public string DisplayName { get; set; }
+        public string? DisplayName { get; set; }
 
         // Profile Information
         [StringLength(1000)]
-        public string Bio { get; set; }
+        public string? Bio { get; set; }
 
         [StringLength(255)]
-        public string AvatarUrl { get; set; }
+        public string? AvatarUrl { get; set; }
 
         public DateTime DateOfBirth { get; set; }
 
@@ -48,22 +46,22 @@ namespace EducationPlatform.DAL.Models.UserModels
 
         // Audit Fields (implementing IAuditableEntity)
         public DateTime CreatedUtc { get; set; }
-        public string CreatedBy { get; set; }
+        public string? CreatedBy { get; set; }
         public DateTime? ModifiedUtc { get; set; }
-        public string ModifiedBy { get; set; }
+        public string? ModifiedBy { get; set; }
 
         // Navigation Properties
-        public virtual ICollection<Course> Courses { get; set; }
+        public virtual ICollection<Course> Courses { get; set; } = new List<Course>();
 
         // Soft Delete
         public bool IsDeleted { get; set; }
         public DateTime? DeletedAt { get; set; }
-        public string DeletedBy { get; set; }
+        public string? DeletedBy { get; set; }
 
 
         // Helper Properties for Logging
         [NotMapped]
-        public string FullName => $"{FirstName} {LastName}";
+        public string FullName => $"{FirstName ?? ""} {LastName ?? ""}".Trim();
 
         // Audit Trail Methods
         public void UpdateLastLogin()
