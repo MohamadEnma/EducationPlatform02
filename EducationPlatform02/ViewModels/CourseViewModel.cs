@@ -1,3 +1,4 @@
+using EducationPlatform.BLL.DTOs;
 using EducationPlatform.DAL.Models.CourseModels;
 using EducationPlatform.DAL.Models.UserModels;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -28,11 +29,11 @@ namespace EducationPlatform.WEB.ViewModels
 
         [Required(ErrorMessage = "Course Status is required.")]
         [Display(Name = "Status")]
-        public CourseStatus Status { get; set; } = CourseStatus.Draft;
+        public BLL.DTOs.CourseStatus Status { get; set; } = BLL.DTOs.CourseStatus.Draft;
 
         [Required(ErrorMessage = "Course Difficulty is required.")]
         [Display(Name = "Difficulty Level")]
-        public CourseDifficulty Difficulty { get; set; }
+        public BLL.DTOs.CourseDifficulty Difficulty { get; set; }
 
         // Dates
         [Display(Name = "Created At")]
@@ -55,7 +56,7 @@ namespace EducationPlatform.WEB.ViewModels
         // Duration
         [Display(Name = "Estimated Duration (minutes)")]
         [Range(1, int.MaxValue, ErrorMessage = "Duration must be a positive number.")]
-        public int? EstimatedDuration { get; set; }
+        public int EstimatedDuration { get; set; }
 
         // Pricing
         [Display(Name = "Price")]
@@ -76,7 +77,7 @@ namespace EducationPlatform.WEB.ViewModels
 
         // Category
         [Display(Name = "Category")]
-        public int? CategoryId { get; set; }
+        public int CategoryId { get; set; }
 
         [Display(Name = "Category Name")]
         public string CategoryName { get; set; }
@@ -114,16 +115,18 @@ namespace EducationPlatform.WEB.ViewModels
         [Display(Name = "Modified By")]
         public string ModifiedBy { get; set; }
 
+
+
         // Additional Properties for Views
         [Display(Name = "Duration (Hours)")]
         public string FormattedDuration
         {
             get
             {
-                if (EstimatedDuration.HasValue)
+                if (EstimatedDuration > 0)
                 {
-                    var hours = EstimatedDuration.Value / 60;
-                    var minutes = EstimatedDuration.Value % 60;
+                    var hours = EstimatedDuration / 60;
+                    var minutes = EstimatedDuration % 60;
                     return hours > 0 ? $"{hours}h {minutes}m" : $"{minutes}m";
                 }
                 return "Not specified";
@@ -148,11 +151,11 @@ namespace EducationPlatform.WEB.ViewModels
             {
                 return Status switch
                 {
-                    CourseStatus.Draft => "badge-secondary",
-                    CourseStatus.PendingReview => "badge-warning",
-                    CourseStatus.Active => "badge-success",
-                    CourseStatus.Inactive => "badge-danger",
-                    CourseStatus.Archived => "badge-dark",
+                    BLL.DTOs.CourseStatus.Draft => "badge-secondary",
+                    BLL.DTOs.CourseStatus.PendingReview => "badge-warning",
+                    BLL.DTOs.CourseStatus.Active => "badge-success",
+                    BLL.DTOs.CourseStatus.Inactive => "badge-danger",
+                    BLL.DTOs.CourseStatus.Archived => "badge-dark",
                     _ => "badge-light"
                 };
             }
@@ -165,10 +168,10 @@ namespace EducationPlatform.WEB.ViewModels
             {
                 return Difficulty switch
                 {
-                    CourseDifficulty.Beginner => "badge-success",
-                    CourseDifficulty.Intermediate => "badge-warning",
-                    CourseDifficulty.Advanced => "badge-danger",
-                    CourseDifficulty.Expert => "badge-dark",
+                    BLL.DTOs.CourseDifficulty.Beginner => "badge-success",
+                    BLL.DTOs.CourseDifficulty.Intermediate => "badge-warning",
+                    BLL.DTOs.CourseDifficulty.Advanced => "badge-danger",
+                    BLL.DTOs.CourseDifficulty.Expert => "badge-dark",
                     _ => "badge-light"
                 };
             }
@@ -190,70 +193,38 @@ namespace EducationPlatform.WEB.ViewModels
         }
 
         // Constructor for mapping from Course entity
-        public CourseViewModel(Course course)
+        public CourseViewModel(CourseDto courseDto)
         {
-            if (course != null)
+            if (courseDto != null)
             {
-                CourseId = course.CourseId;
-                Title = course.Title;
-                Description = course.Description;
-                IsPublished = course.IsPublished;
-                Status = course.Status;
-                Difficulty = course.Difficulty;
-                CreatedAt = course.CreatedAt;
-                LastModifiedAt = course.LastModifiedAt;
-                PublishedAt = course.PublishedAt;
-                StartDate = course.StartDate;
-                EndDate = course.EndDate;
-                EstimatedDuration = course.EstimatedDuration;
-                Price = course.Price;
-                IsFree = course.IsFree;
-                InstructorId = course.InstructorId;
-                InstructorName = course.Instructor?.UserName ?? course.Instructor?.Email;
-                CategoryId = course.CategoryId;
-                CategoryName = course.Category?.Name;
-                ThumbnailUrl = course.ThumbnailUrl;
-                PreviewVideoUrl = course.PreviewVideoUrl;
-                Requirements = course.Requirements;
-                LearningObjectives = course.LearningObjectives;
-                CreatedUtc = course.CreatedUtc;
-                CreatedBy = course.CreatedBy;
-                ModifiedUtc = course.ModifiedUtc;
-                ModifiedBy = course.ModifiedBy;
+                CourseId = courseDto.CourseId;
+                Title = courseDto.Title;
+                Description = courseDto.Description;
+                IsPublished = courseDto.IsPublished;
+                Status = courseDto.Status;
+                Difficulty = courseDto.Difficulty;
+                CreatedAt = courseDto.CreatedAt;
+                LastModifiedAt = courseDto.LastModifiedAt;
+                PublishedAt = courseDto.PublishedAt;
+                StartDate = courseDto.StartDate;
+                EndDate = courseDto.EndDate;
+                EstimatedDuration = courseDto.EstimatedDuration;
+                Price = courseDto.Price;
+                IsFree = courseDto.IsFree;
+                InstructorId = courseDto.InstructorId;
+                InstructorName = courseDto.Instructor?.UserName ?? courseDto.Instructor?.Email;
+                CategoryId = courseDto.CategoryId;
+                CategoryName = courseDto.Category?.Name;
+                ThumbnailUrl = courseDto.ThumbnailUrl;
+                PreviewVideoUrl = courseDto.PreviewVideoUrl;
+                Requirements = courseDto.Requirements;
+                LearningObjectives = courseDto.LearningObjectives;
+                CreatedUtc = courseDto.CreatedUtc;
+                CreatedBy = courseDto.CreatedBy;
+                ModifiedUtc = courseDto.ModifiedUtc;
+                ModifiedBy = courseDto.ModifiedBy;
             }
-        }
-
-        // Method to convert ViewModel to Course entity
-        public Course ToEntity()
-        {
-            return new Course
-            {
-                CourseId = CourseId,
-                Title = Title,
-                Description = Description,
-                IsPublished = IsPublished,
-                Status = Status,
-                Difficulty = Difficulty,
-                CreatedAt = CreatedAt,
-                LastModifiedAt = DateTime.Now,
-                PublishedAt = PublishedAt,
-                StartDate = StartDate,
-                EndDate = EndDate,
-                EstimatedDuration = EstimatedDuration,
-                Price = Price,
-                IsFree = IsFree,
-                InstructorId = InstructorId,
-                CategoryId = CategoryId,
-                ThumbnailUrl = ThumbnailUrl,
-                PreviewVideoUrl = PreviewVideoUrl,
-                Requirements = Requirements,
-                LearningObjectives = LearningObjectives,
-                CreatedUtc = CourseId == 0 ? DateTime.UtcNow : CreatedUtc,
-                CreatedBy = CourseId == 0 ? "MohamadEnma" : CreatedBy,
-                ModifiedUtc = DateTime.UtcNow,
-                ModifiedBy = "MohamadEnma"
-            };
-        }
+        }   
     }
 
     // Helper ViewModel for Course Lists
@@ -264,8 +235,8 @@ namespace EducationPlatform.WEB.ViewModels
         public int PageNumber { get; set; } = 1;
         public int PageSize { get; set; } = 10;
         public string SearchTerm { get; set; }
-        public CourseStatus? FilterStatus { get; set; }
-        public CourseDifficulty? FilterDifficulty { get; set; }
+        public BLL.DTOs.CourseStatus? FilterStatus { get; set; }
+        public BLL.DTOs.CourseDifficulty? FilterDifficulty { get; set; }
         public int? FilterCategoryId { get; set; }
         public string SortBy { get; set; } = "CreatedAt";
         public string SortDirection { get; set; } = "desc";
@@ -282,7 +253,7 @@ namespace EducationPlatform.WEB.ViewModels
         {
         }
 
-        public CourseFormViewModel(Course course) : base(course)
+        public CourseFormViewModel(CourseDto courseDto) : base(courseDto)
         {
         }
 

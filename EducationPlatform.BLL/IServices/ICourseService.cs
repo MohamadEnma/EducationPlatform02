@@ -15,5 +15,6 @@ namespace EducationPlatform.BLL.IServices
         Task<CourseDto?> UpdateCourseAsync(int id, CourseDto courseDto);
         Task<bool> DeleteCourseAsync(int id);
         Task<IEnumerable<CourseDto>> GetCoursesByInstructorAsync(string instructorId);
+        Task<int> SaveChangesAsync();
     }
 }

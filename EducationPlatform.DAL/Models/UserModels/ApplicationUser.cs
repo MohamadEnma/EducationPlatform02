@@ -54,6 +54,7 @@ namespace EducationPlatform.DAL.Models.UserModels
 
         // Navigation Properties
         public virtual ICollection<Course> Courses { get; set; }
+        public virtual ICollection<Enrollment> Enrollments { get; set; } = new List<Enrollment>();
 
         // Soft Delete
         public bool IsDeleted { get; set; }

@@ -1,4 +1,5 @@
-﻿using EducationPlatform.DAL.IRepositories;
+﻿using EducationPlatform.DAL.Configurations;
+using EducationPlatform.DAL.IRepositories;
 using EducationPlatform.DAL.Models.CourseModels;
 using EducationPlatform.DAL.Models.UserModels;
 using Microsoft.EntityFrameworkCore;
@@ -24,6 +25,10 @@ namespace EducationPlatform.DAL.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.ApplyConfiguration(new CourseConfiguration());
+            modelBuilder.ApplyConfiguration(new CourseCategoryConfiguration());
+            modelBuilder.ApplyConfiguration(new EnrollmentConfiguration());
         }
     }
 }

@@ -198,5 +198,71 @@ namespace EducationPlatform.BLL.Services
                 throw new ApplicationException($"An error occurred while retrieving courses for instructor {instructorId}.", ex);
             }
         }
+
+        public async Task<IEnumerable<CourseDto>> GetPublishedCoursesAsync()
+        {
+            try
+            {
+                var courses = await _courseRepository.GetPublishedCoursesAsync();
+                return courses.Select(c => new CourseDto
+                {
+                    CourseId = c.CourseId,
+                    Title = c.Title,
+                    Description = c.Description,
+                    IsPublished = c.IsPublished,
+                    Price = c.Price,
+                    IsFree = c.IsFree,
+                    InstructorId = c.InstructorId,
+                    CreatedAt = c.CreatedAt
+                });
+            }
+            catch (Exception ex)
+            {
+                // Log the exception or handle it as needed
+                throw new ApplicationException("An error occurred while retrieving published courses.", ex);
+            }
+        }
+
+        public async Task<CourseDto?> GetCourseWithDetailsAsync(int courseId)
+        {
+            try
+            {
+                var course = await _courseRepository.GetCourseWithDetailsAsync(courseId);
+                if (course == null)
+                {
+                    return null; // Course not found
+                }
+                return new CourseDto
+                {
+                    CourseId = course.CourseId,
+                    Title = course.Title,
+                    Description = course.Description,
+                    IsPublished = course.IsPublished,
+                    Price = course.Price,
+                    IsFree = course.IsFree,
+                    InstructorId = course.InstructorId,
+                    CreatedAt = course.CreatedAt
+                };
+            }
+            catch (Exception ex)
+            {
+                // Log the exception or handle it as needed
+                throw new ApplicationException($"An error occurred while retrieving the course with ID {courseId}.", ex);
+            }
+        }
+
+        public async Task<int> SaveChangesAsync()
+        {
+            try
+            {
+                
+                return await _courseRepository.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                // Log the exception or handle it as needed
+                throw new ApplicationException("An error occurred while saving changes.", ex);
+            }
+        }
     }
 }

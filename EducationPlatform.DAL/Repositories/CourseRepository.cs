@@ -15,7 +15,6 @@ namespace EducationPlatform.DAL.Repositories
         public CourseRepository(EducationDbContext context) : base(context)
         {
         }
-
         public async Task<IEnumerable<Course>> GetCoursesByInstructorAsync(string instructorId)
         {
             return await _dbSet
@@ -24,7 +23,6 @@ namespace EducationPlatform.DAL.Repositories
                 .Include(c => c.Category)
                 .ToListAsync();
         }
-
         public async Task<IEnumerable<Course>> GetPublishedCoursesAsync()
         {
             return await _dbSet
@@ -33,7 +31,6 @@ namespace EducationPlatform.DAL.Repositories
                 .Include(c => c.Category)
                 .ToListAsync();
         }
-
         public async Task<Course?> GetCourseWithDetailsAsync(int courseId)
         {
             return await _dbSet
@@ -41,7 +38,6 @@ namespace EducationPlatform.DAL.Repositories
                 .Include(c => c.Category)
                 .FirstOrDefaultAsync(c => c.CourseId == courseId && !c.IsDeleted);
         }
-
         public async Task<Course?> GetCourseByIdAsync(int id)
         {
             return await _dbSet
@@ -49,7 +45,6 @@ namespace EducationPlatform.DAL.Repositories
                 .Include(c => c.Category)
                 .FirstOrDefaultAsync(c => c.CourseId == id && !c.IsDeleted);
         }
-
         public async Task<IEnumerable<Course>> GetAllCoursesAsync()
         {
             return await _dbSet
@@ -58,7 +53,6 @@ namespace EducationPlatform.DAL.Repositories
                 .Include(c => c.Category)
                 .ToListAsync();
         }
-
         public async Task<IEnumerable<Course>> FindCoursesAsync(Func<Course, bool> predicate)
         {
             // Note: This loads all courses into memory first, then applies the predicate
@@ -71,7 +65,6 @@ namespace EducationPlatform.DAL.Repositories
 
             return allCourses.Where(predicate);
         }
-
         public async Task AddCourseAsync(Course course)
         {
             if (course == null)
@@ -86,7 +79,6 @@ namespace EducationPlatform.DAL.Repositories
 
             await _dbSet.AddAsync(course);
         }
-
         public void UpdateCourse(Course course)
         {
             if (course == null)
@@ -99,7 +91,6 @@ namespace EducationPlatform.DAL.Repositories
 
             _dbSet.Update(course);
         }
-
         public void DeleteCourse(Course course)
         {
             if (course == null)
@@ -112,5 +103,74 @@ namespace EducationPlatform.DAL.Repositories
 
             _dbSet.Update(course);
         }
+        public async Task<IEnumerable<Course>> GetCoursesByCategoryAsync(int categoryId)
+        {
+            return await _dbSet
+                .Where(c => c.CategoryId == categoryId && !c.IsDeleted)
+                .Include(c => c.Instructor)
+                .Include(c => c.Category)
+                .ToListAsync();
+        }
+        public async Task<IEnumerable<Course>> GetCoursesByStatusAsync(CourseStatus status)
+        {
+            return await _dbSet
+                .Where(c => c.Status == status && !c.IsDeleted)
+                .Include(c => c.Instructor)
+                .Include(c => c.Category)
+                .ToListAsync();
+        }
+        public async Task<IEnumerable<Course>> GetCoursesByDifficultyAsync(CourseDifficulty difficulty)
+        {
+            return await _dbSet
+                .Where(c => c.Difficulty == difficulty && !c.IsDeleted)
+                .Include(c => c.Instructor)
+                .Include(c => c.Category)
+                .ToListAsync();
+        }
+        public async Task<IEnumerable<Course>> GetCoursesByTitleAsync(string title)
+        {
+            return await _dbSet
+                .Where(c => c.Title.Contains(title) && !c.IsDeleted)
+                .Include(c => c.Instructor)
+                .Include(c => c.Category)
+                .ToListAsync();
+        }
+        public async Task<IEnumerable<Course>> GetCoursesByKeywordAsync(string keyword)
+        {
+            return await _dbSet
+                .Where(c => c.Title.Contains(keyword) || c.Description.Contains(keyword) && !c.IsDeleted)
+                .Include(c => c.Instructor)
+                .Include(c => c.Category)
+                .ToListAsync();
+        }
+        public async Task<IEnumerable<Course>> GetCoursesByEnrollmentCountAsync(int minEnrollments)
+        {
+            return await _dbSet
+                .Where(c => c.Enrollments.Count >= minEnrollments && !c.IsDeleted)
+                .Include(c => c.Instructor)
+                .Include(c => c.Category)
+                .ToListAsync();
+        }
+        public async Task<IEnumerable<Course>> GetCoursesByCreationDateAsync(DateTime startDate, DateTime endDate)
+        {
+            return await _dbSet
+                .Where(c => c.CreatedUtc >= startDate && c.CreatedUtc <= endDate && !c.IsDeleted)
+                .Include(c => c.Instructor)
+                .Include(c => c.Category)
+                .ToListAsync();
+        }
+        public async Task<IEnumerable<Course>> GetCoursesByLastModifiedDateAsync(DateTime startDate, DateTime endDate)
+        {
+            return await _dbSet
+                .Where(c => c.ModifiedUtc >= startDate && c.ModifiedUtc <= endDate && !c.IsDeleted)
+                .Include(c => c.Instructor)
+                .Include(c => c.Category)
+                .ToListAsync();
+        }
+        public async Task<int> SaveChangesAsync()
+        {
+            return await _context.SaveChangesAsync();
+        }
+
     }
 }
